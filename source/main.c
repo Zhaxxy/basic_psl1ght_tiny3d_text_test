@@ -5,8 +5,43 @@
 
 #include "font_stuff.h"
 
+#define BTN_LEFT       32768
+#define BTN_DOWN       16384
+#define BTN_RIGHT      8192
+#define BTN_UP         4096
+#define BTN_START      2048
+#define BTN_R3         1024
+#define BTN_L3         512
+#define BTN_SELECT     256  
+#define BTN_SQUARE     128
+#define BTN_CROSS      64
+#define BTN_CIRCLE     32
+#define BTN_TRIANGLE   16
+#define BTN_R1         8
+#define BTN_L1         4
+#define BTN_R2         2
+#define BTN_L2         1
+
 padInfo padinfo;
 padData paddata;
+
+unsigned get_button_pressed()
+{
+	int i_for_pad_num;
+
+	ioPadGetInfo(&padinfo);
+
+	for(i_for_pad_num = 0; i_for_pad_num < MAX_PADS; i_for_pad_num++){
+
+		if(padinfo.status[i_for_pad_num]){
+			ioPadGetData(i_for_pad_num, &paddata);
+			return (paddata.button[2] << 8) | (paddata.button[3] & 0xff);
+
+		}
+		
+	}
+	return 0;
+}
 
 void drawScene()
 {
@@ -94,8 +129,6 @@ void drawScene()
 s32 main(s32 argc, const char* argv[])
 {
 	
-	int i;
-	
 	tiny3d_Init(1024*1024);
 
 	ioPadInit(7);
@@ -107,21 +140,9 @@ s32 main(s32 argc, const char* argv[])
 	
 	// Ok, everything is setup. Now for the main loop.
 	while(1) {
-
-        // Check the pads.
-		ioPadGetInfo(&padinfo);
-
-		for(i = 0; i < MAX_PADS; i++){
-
-			if(padinfo.status[i]){
-				ioPadGetData(i, &paddata);
-				
-				if(paddata.BTN_CROSS){
-					return 0;
-				}
-			}
-			
-		}
+	if(get_button_pressed() & BTN_CROSS){
+		return 0;
+	}
 
         /* DRAWING STARTS HERE */
 
